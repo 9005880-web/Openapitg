@@ -5,6 +5,7 @@ from openai import OpenAI
 from dotenv import load_dotenv
 from strategies import fetch_price, get_signal
 
+# Load local .env variables (optional for local test)
 load_dotenv()
 
 TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
@@ -35,6 +36,17 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 messages=[{"role": "user", "content": text + " অনুগ্রহ করে বাংলায় উত্তর দাও"}],
                 temperature=0.7
             )
+            reply = response.choices[0].message.content
+        except Exception as e:
+            reply = f"ত্রুটি: {e}"
+
+    await update.message.reply_text(reply)
+
+app = ApplicationBuilder().token(TELEGRAM_TOKEN).build()
+app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
+
+print("বাংলা-enabled Trading AI Bot চালু হলো...")
+app.run_polling()            )
             reply = response.choices[0].message.content
         except Exception as e:
             reply = f"ত্রুটি: {e}"
